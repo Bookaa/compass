@@ -2,13 +2,9 @@
 
 from temboo.Library.Twitter.Search.SearchFilter import SearchFilter
 from temboo.core.session import TembooSession
+from config import *
 
-session = TembooSession(
-        "rbtying",
-        "Walkthrough",
-        "3e1ccfa9-d6cc-4ec1-a"
-        )
-twitterSearch = SearchFilter(session)
+twitterSearch = SearchFilter(temboo_session)
 inputs = twitterSearch.new_input_set()
 inputs.set_SearchString("Elvis")
 inputs.set_Filter("Costello")
