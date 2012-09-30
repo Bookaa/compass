@@ -7,6 +7,9 @@ temboo_session = TembooSession(
         "APP_KEY",
         )
 
+FOURSQUARE_CLIENT_ID = ''
+FOURSQUARE_CLIENT_SECRET = ''
+
 try:
     from local_config import *
 except ImportError:
