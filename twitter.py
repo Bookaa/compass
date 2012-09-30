@@ -22,9 +22,11 @@ def getTwitterResults(query, loc):
     inputs.set_ResultsPerPage(15)
     inputs.set_Query(query)
 
-    results = twitterSearch.execute_with_results(inputs)
-
-    return results.results['Response'].encode('utf-8')
+    try:
+        results = twitterSearch.execute_with_results(inputs)
+        return results.results['Response'].encode('utf-8')
+    except Exception:
+        pass
 
 
 def parseTwitterResultRecursive(element, out, depth, date):

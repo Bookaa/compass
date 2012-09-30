@@ -15,8 +15,11 @@ def getTimesReports():
     inputs.set_APIKey(NYT_API_KEY)
     inputs.set_TimePeriod("1")
 
-    results = nyt.execute_with_results(inputs)
-    return results.results['Response'].encode('utf-8')
+    try:
+        results = nyt.execute_with_results(inputs)
+        return results.results['Response'].encode('utf-8')
+    except Exception:
+        pass
 
 def parseTimesResultRecursive(element, out, date):
     if "geo_facet_item" in element.tag:
@@ -57,7 +60,7 @@ def parseTimesResults(xml):
     lastupdate = list()
     lastupdate.append(date + 1)
 
-    return outputlist
+    return list(outputlist)
 
 if __name__ == "__main__":
     while True:

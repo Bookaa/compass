@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from twitter import getTwitterResults, parseTwitterResults
+from nyt import getTimesReports, parseTimesResults
 from foursquare_ping import ping
 import timeit
 import geoloc
@@ -23,15 +24,22 @@ def normalize(vector):
     greatest_dist = math.log(max([x[2] for x in vector]))
     return [(x[0], x[1], max(0, math.log(x[2]) / greatest_dist)) for x in vector]
 
-def process_events(raw_events):
+def process_events(raw_events, loc):
     events = [(event[0], angle(loc, event[1]), dist(loc, event[1])) for event in raw_events]
     return normalize(events)
+
+def run(loc):
+    foursquare = ping()
+    twitter = parseTwitterResults(getTwitterResults("#HackNYF2012", loc))
+    nyt = parseTimesResults(getTimesReports())
+    return process_events(foursquare + twitter + nyt, loc)
+
 
 if __name__ == '__main__':
     loc = geoloc.getLocation()
     lat = loc['latitude']
     lng = loc['longitude']
 
-    foursquare = ping()
-    twitter = parseTwitterResults(getTwitterResults("#HackNYF2012", loc))
-    events = process_events(foursquare + twitter)
+    while True:
+        events = run(loc) 
+        print events
