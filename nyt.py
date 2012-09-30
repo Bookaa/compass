@@ -56,7 +56,10 @@ def parseTimesResults(xml):
     else:
         parseTimesResultRecursive(root, outputlist, 0)
 
-    date = lastupdate[len(lastupdate) - 1]
+    if len(lastupdate) > 1:
+        date = lastupdate[len(lastupdate) - 1]
+    else:
+        date = 0
     lastupdate = list()
     lastupdate.append(date + 1)
 
