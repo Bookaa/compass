@@ -7,6 +7,7 @@ import timeit
 import geoloc
 import math
 from geopy import distance
+import serial
 
 def angle(my_loc, other_loc):
     delta_lat = other_loc[0] - my_loc['latitude']
@@ -21,25 +22,57 @@ def dist(my_loc, other_loc):
     return distance.distance(loc, other_loc).miles
 
 def normalize(vector):
-    greatest_dist = math.log(max([x[2] for x in vector]))
-    return [(x[0], x[1], max(0, math.log(x[2]) / greatest_dist)) for x in vector]
+    if vector:
+        greatest_dist = math.log(max([x[2] for x in vector]))
+        return [(x[0], x[1], max(0, math.log(x[2]) / greatest_dist)) for x in vector]
+    return vector
 
 def process_events(raw_events, loc):
     events = [(event[0], angle(loc, event[1]), dist(loc, event[1])) for event in raw_events]
     return normalize(events)
 
-def run(loc):
-    foursquare = ping()
-    twitter = parseTwitterResults(getTwitterResults("#HackNYF2012", loc))
-    nyt = parseTimesResults(getTimesReports())
-    return process_events(foursquare + twitter + nyt, loc)
+foursquare_this_time = True
 
+def run(loc):
+    global foursquare_this_time
+    if foursquare_this_time:
+        foursquare_this_time = False
+        foursquare = ping()
+        twitter = parseTwitterResults(getTwitterResults("#HackNYF2012", loc))
+        nyt = parseTimesResults(getTimesReports())
+        return process_events(foursquare + twitter + nyt, loc)
+    foursquare_this_time = True
+    return []
+
+def pins(events):
+    bits = [0, 0, 0]
+    for event in events:
+        if event[0] == 'foursquare':
+            sector = min(5, math.floor(event[1] * 6))
+            bits[0] |= 2 ** sector
+        elif event[0] == 'twitter':
+            sector = 2 * min(5, math.floor(event[1] * 6)) + 6
+            if sector < 8:
+                bits[0] |= 2 ** sector
+            elif sector < 16:
+                bits[1] |= 2 ** (sector - 8)
+            else:
+                bits[2] |= 2 ** (sector - 16)
+        elif event[0] == 'nyt':
+            sector = min(5, math.floor(event[1] * 6)) + 18
+            bits[2] |= 2 ** (sector - 16)
+    return bytes(bits)
 
 if __name__ == '__main__':
+    ser = serial.Serial('/dev/ttyACM0', 115200)
+
     loc = geoloc.getLocation()
     lat = loc['latitude']
     lng = loc['longitude']
 
     while True:
-        events = run(loc) 
+        events = run(loc)
+        pins = pins(events)
+        print pins
         print events
+        ser.write(pins)
