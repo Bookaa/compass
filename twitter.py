@@ -37,7 +37,7 @@ def parseTwitterResults(xml):
                         x = geoloc.getCoordinates(subchild.text.encode('utf-8'))
                         if x is not None:
                             outputlist.add(('twitter', x))
-    return outputlist
+    return list(outputlist)
 
 if __name__ == "__main__":
     loc = geoloc.getLocation()
