@@ -68,7 +68,7 @@ def parseTwitterResults(xml):
     lastupdate = list()
     lastupdate.append(date)
 
-    return outputlist
+    return list(outputlist)
 
 if __name__ == "__main__":
     loc = geoloc.getLocation()
@@ -77,5 +77,4 @@ if __name__ == "__main__":
         outputlist = parseTwitterResults(getTwitterResults("#HackNYF2012", loc))
         for coord in outputlist:
             print coord
-        print "ping"
         time.sleep(1)
