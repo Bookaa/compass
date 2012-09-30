@@ -9,6 +9,7 @@ temboo_session = TembooSession(
 
 FOURSQUARE_CLIENT_ID = ''
 FOURSQUARE_CLIENT_SECRET = ''
+FOURSQUARE_OAUTH_KEY = ''
 
 try:
     from local_config import *
