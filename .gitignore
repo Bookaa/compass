@@ -29,3 +29,6 @@ pip-log.txt
 # secret stuff
 *.credentials
 local_config.py
+
+# virtualenv
+venv
