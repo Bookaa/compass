@@ -11,6 +11,8 @@ FOURSQUARE_CLIENT_ID = ''
 FOURSQUARE_CLIENT_SECRET = ''
 FOURSQUARE_OAUTH_KEY = ''
 
+NYT_API_KEY = ''
+
 try:
     from local_config import *
 except ImportError:

@@ -26,17 +26,48 @@ def getTwitterResults(query, loc):
 
     return results.results['Response'].encode('utf-8')
 
+
+def parseTwitterResultRecursive(element, out, depth, date):
+    if "location" in element.tag:
+        if element.text is not None:
+            k = False
+            parent = element.getparent()
+            for c in parent:
+                if "published" in c.tag:
+                    publishdate = time.mktime(time.strptime(c.text,
+                        "%Y-%m-%dT%H:%M:%SZ"))
+                    if publishdate > date:
+                        k = True
+                    lastupdate.append(publishdate)
+            if k:
+                x = geoloc.getCoordinates(element.text.encode('utf-8'))
+                if x is not None:
+                    out.add(('twitter', x))
+    else:
+        if depth < 2:
+            for child in element:
+                parseTwitterResultRecursive(child, out, depth + 1, date)
+
+lastupdate = list()
+
 def parseTwitterResults(xml):
     outputlist = set()
     root = etree.fromstring(xml)
-    for child in root:
-        if "entry" in child.tag:
-            for subchild in child:
-                if "location" in subchild.tag:
-                    if subchild.text is not None:
-                        x = geoloc.getCoordinates(subchild.text.encode('utf-8'))
-                        if x is not None:
-                            outputlist.add(('twitter', x))
+
+    global lastupdate
+    if lastupdate is None:
+        lastupdate = list()
+
+    if len(lastupdate) > 0:
+        lastupdate.sort()
+        parseTwitterResultRecursive(root, outputlist, 0,
+                lastupdate[0])
+    else:
+        parseTwitterResultRecursive(root, outputlist, 0, 0)
+    date = lastupdate[0]
+    lastupdate = list()
+    lastupdate.append(date)
+
     return outputlist
 
 if __name__ == "__main__":
@@ -46,4 +77,5 @@ if __name__ == "__main__":
         outputlist = parseTwitterResults(getTwitterResults("#HackNYF2012", loc))
         for coord in outputlist:
             print coord
+        print "ping"
         time.sleep(1)
