@@ -48,23 +48,23 @@ def pins(events):
     bits = [0, 0, 0]
     for event in events:
         if event[0] == 'foursquare':
-            sector = min(5, math.floor(event[1] * 6))
-            bits[0] |= 2 ** sector
+            sector = int(min(5, math.floor(event[1] * 6)))
+            bits[0] |= int(2 ** sector)
         elif event[0] == 'twitter':
             sector = 2 * min(5, math.floor(event[1] * 6)) + 6
             if sector < 8:
-                bits[0] |= 2 ** sector
+                bits[0] |= int(2 ** sector)
             elif sector < 16:
-                bits[1] |= 2 ** (sector - 8)
+                bits[1] |= int(2 ** (sector - 8))
             else:
-                bits[2] |= 2 ** (sector - 16)
+                bits[2] |= int(2 ** (sector - 16))
         elif event[0] == 'nyt':
-            sector = min(5, math.floor(event[1] * 6)) + 18
-            bits[2] |= 2 ** (sector - 16)
+            sector = int(min(5, math.floor(event[1] * 6)) + 18)
+            bits[2] |= int(2 ** (sector - 16))
     return bytes(bits)
 
 if __name__ == '__main__':
-    ser = serial.Serial('/dev/ttyACM0', 115200)
+    ser = serial.Serial('/dev/ttyACM1', 115200)
 
     loc = geoloc.getLocation()
     lat = loc['latitude']
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
     while True:
         events = run(loc)
-        pins = pins(events)
-        print pins
+        pin = pins(events)
+        print pin
         print events
-        ser.write(pins)
+        ser.write(pin)
